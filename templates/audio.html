@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Audio - School Bell System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-music-note-list"></i> Manajemen Audio
+            </h2>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadAudioModal">
+                <i class="bi bi-upload"></i> Upload Audio
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama</th>
+                                <th>File</th>
+                                <th>Durasi</th>
+                                <th>Upload</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for audio in audio_files %}
+                            <tr>
+                                <td>{{ audio.display_name }}</td>
+                                <td>{{ audio.filename }}</td>
+                                <td>
+                                    {% if audio.duration %}
+                                    {{ "%.1f"|format(audio.duration) }} detik
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ audio.uploaded_at }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="previewAudio('{{ audio.filename }}')">
+                                        <i class="bi bi-play-circle"></i> Preview
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteAudio({{ audio.id }}, '{{ audio.display_name }}')">
+                                        <i class="bi bi-trash"></i> Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    Belum ada file audio. Klik "Upload Audio" untuk menambahkan file.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audio Preview Section -->
+<div class="row mt-4" id="audioPreviewSection" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-play-circle"></i> Preview Audio
+                </h5>
+            </div>
+            <div class="card-body">
+                <audio controls id="audioPreview" class="w-100">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-secondary" onclick="closePreview()">
+                        <i class="bi bi-x"></i> Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Upload Audio -->
+<div class="modal fade" id="uploadAudioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload File Audio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Nama Display</label>
+                        <input type="text" class="form-control" id="displayName" required>
+                        <div class="form-text">Nama yang akan ditampilkan di sistem</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="audioFile" class="form-label">File Audio</label>
+                        <input type="file" class="form-control" id="audioFile" accept=".mp3,.wav,.ogg" required>
+                        <div class="form-text">Format yang didukung: MP3, WAV, OGG (Maks. 50MB)</div>
+                    </div>
+                    <div id="uploadProgress" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                        </div>
+                        <p class="text-center mt-2">Uploading...</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" onclick="uploadAudio()">
+                    <i class="bi bi-upload"></i> Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+{% endblock %}

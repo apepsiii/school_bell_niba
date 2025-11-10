@@ -1,0 +1,16 @@
+Flask==3.0.0
+APScheduler==3.10.4
+Werkzeug==3.0.1
+python-dateutil==2.8.2
+mutagen==1.47.0
+
+# Audio backends (pilih salah satu yang berhasil install):
+# Opsi 1: pygame (jika bisa install)
+# pygame==2.5.2
+
+# Opsi 2: playsound (paling mudah di Windows)
+playsound==1.3.0
+
+# Opsi 3: pydub (alternatif lain)
+# pydub==0.25.1
+# simpleaudio==1.0.4

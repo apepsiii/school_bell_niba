@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Log - School Bell System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="bi bi-clock-history"></i> History Pemutaran
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <h6 class="text-muted">Total Pemutaran Sukses</h6>
+                <h3 class="text-success" id="successCount">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h6 class="text-muted">Total Pemutaran Gagal</h6>
+                <h3 class="text-danger" id="failedCount">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <h6 class="text-muted">Pengumuman Manual</h6>
+                <h3 class="text-info" id="manualCount">-</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul"></i> Log Terakhir
+                </h5>
+                <button class="btn btn-sm btn-light" onclick="refreshLogs()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Jadwal</th>
+                                <th>Audio</th>
+                                <th>Status</th>
+                                <th>Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.played_at }}</td>
+                                <td>
+                                    {% if log.schedule_name %}
+                                    {{ log.schedule_name }}
+                                    {% else %}
+                                    <span class="badge bg-info">Manual</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.audio_file }}</td>
+                                <td>
+                                    {% if log.status == 'success' %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Sukses
+                                    </span>
+                                    {% elif log.status == 'failed' %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> Gagal
+                                    </span>
+                                    {% elif log.status == 'manual_play' %}
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-hand-index"></i> Manual
+                                    </span>
+                                    {% elif log.status == 'cancelled' %}
+                                    <span class="badge bg-warning">
+                                        <i class="bi bi-dash-circle"></i> Dibatalkan
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ log.notes or '-' }}</small>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    Belum ada log pemutaran.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+{% endblock %}

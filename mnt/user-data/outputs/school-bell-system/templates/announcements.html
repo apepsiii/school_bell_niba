@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Pengumuman - School Bell System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="bi bi-megaphone"></i> Pengumuman Manual
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-play-circle"></i> Putar Audio
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="audioSelect" class="form-label">Pilih Audio</label>
+                    <select class="form-select form-select-lg" id="audioSelect">
+                        <option value="">-- Pilih Audio untuk Diputar --</option>
+                        {% for audio in audio_files %}
+                        <option value="{{ audio.filename }}" data-duration="{{ audio.duration }}">
+                            {{ audio.display_name }}
+                            {% if audio.duration %}
+                            ({{ "%.1f"|format(audio.duration) }}s)
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success btn-lg" onclick="playAnnouncement()">
+                        <i class="bi bi-play-fill"></i> Putar Sekarang
+                    </button>
+                    <button class="btn btn-danger btn-lg" onclick="stopAnnouncement()">
+                        <i class="bi bi-stop-fill"></i> Stop
+                    </button>
+                </div>
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Catatan:</strong> Audio akan langsung diputar melalui speaker yang terhubung.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Status Pemutaran
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-4">
+                    <div id="playingStatus">
+                        <i class="bi bi-volume-mute-fill" style="font-size: 4rem; color: #6c757d;"></i>
+                        <h4 class="mt-3 text-muted">Tidak Ada Audio</h4>
+                        <p class="text-muted">Pilih audio dan klik "Putar Sekarang"</p>
+                    </div>
+                </div>
+
+                <div id="currentlyPlaying" style="display: none;">
+                    <div class="text-center">
+                        <i class="bi bi-volume-up-fill text-success" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-success">Sedang Diputar</h4>
+                        <p class="text-muted" id="currentAudioName">-</p>
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Playing...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-volume-up"></i> Kontrol Volume
+                </h5>
+            </div>
+            <div class="card-body">
+                <label for="volumeSlider" class="form-label">Volume: <strong><span id="volumeDisplay">80</span>%</strong></label>
+                <input type="range" class="form-range" min="0" max="100" value="80" id="volumeSlider">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">
+                    <i class="bi bi-question-circle"></i> Cara Penggunaan
+                </h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Pilih file audio yang ingin diputar dari dropdown</li>
+                    <li>Atur volume sesuai kebutuhan (opsional)</li>
+                    <li>Klik tombol <strong>"Putar Sekarang"</strong> untuk memutar audio</li>
+                    <li>Audio akan langsung diputar melalui speaker yang terhubung</li>
+                    <li>Klik tombol <strong>"Stop"</strong> jika ingin menghentikan pemutaran</li>
+                </ol>
+                <p class="mb-0">
+                    <i class="bi bi-lightbulb"></i> <strong>Tips:</strong> 
+                    Fitur ini cocok untuk pengumuman mendadak atau situasi khusus di luar jadwal reguler.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/announcements.js') }}"></script>
+{% endblock %}

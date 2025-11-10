@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Jadwal - School Bell System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-calendar3"></i> Manajemen Jadwal
+            </h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                <i class="bi bi-plus-circle"></i> Tambah Jadwal
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Hari</th>
+                                <th>Waktu</th>
+                                <th>Audio</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedulesList">
+                            {% for schedule in schedules %}
+                            <tr>
+                                <td>{{ schedule.name }}</td>
+                                <td>{{ schedule.day_of_week }}</td>
+                                <td>{{ schedule.time }}</td>
+                                <td>{{ schedule.audio_file }}</td>
+                                <td>
+                                    {% if schedule.is_active %}
+                                    <span class="badge bg-success">Aktif</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Nonaktif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" onclick="editSchedule({{ schedule.id }})">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-info" onclick="toggleSchedule({{ schedule.id }})">
+                                        <i class="bi bi-toggle-on"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteSchedule({{ schedule.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    Belum ada jadwal. Klik "Tambah Jadwal" untuk membuat jadwal baru.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add/Edit Schedule -->
+<div class="modal fade" id="addScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Jadwal Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleForm">
+                    <input type="hidden" id="scheduleId">
+                    <div class="mb-3">
+                        <label for="scheduleName" class="form-label">Nama Jadwal</label>
+                        <input type="text" class="form-control" id="scheduleName" required>
+                        <div class="form-text">Contoh: Bel Masuk, Bel Istirahat, Bel Pulang</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="scheduleDayOfWeek" class="form-label">Hari</label>
+                        <select class="form-select" id="scheduleDayOfWeek" required>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                            <option value="Minggu">Minggu</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="scheduleTime" class="form-label">Waktu</label>
+                        <input type="time" class="form-control" id="scheduleTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="scheduleAudioFile" class="form-label">File Audio</label>
+                        <select class="form-select" id="scheduleAudioFile" required>
+                            <option value="">-- Pilih Audio --</option>
+                            {% for audio in audio_files %}
+                            <option value="{{ audio.filename }}">{{ audio.display_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveSchedule()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/schedules.js') }}"></script>
+{% endblock %}
