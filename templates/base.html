@@ -13,10 +13,19 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ea580c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="School Bell">
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="bi bi-bell-fill"></i> Sistem Bel Sekolah
@@ -51,9 +60,35 @@
                             <i class="bi bi-clock-history"></i> Log
                         </a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="pwaDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-phone"></i> PWA
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="/pwa" target="_blank">
+                                    <i class="bi bi-phone"></i> Mobile Interface
+                                    <small class="text-muted d-block">Interface mobile-friendly</small>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="installPWA()">
+                                    <i class="bi bi-download"></i> Install App
+                                    <small class="text-muted d-block">Install ke perangkat</small>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="shareApp()">
+                                    <i class="bi bi-share"></i> Share App
+                                    <small class="text-muted d-block">Bagikan aplikasi</small>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <span class="badge bg-light text-dark me-2" id="currentTime">--:--:--</span>
+                    <span class="badge bg-secondary me-2" id="currentTime">--:--:--</span>
                     <span class="badge bg-success me-2" id="statusBadge">
                         <i class="bi bi-circle-fill"></i> Online
                     </span>
@@ -98,6 +133,78 @@
     
     <!-- Main JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('{{ url_for("static", filename="js/service-worker.js") }}')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // PWA Install prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button
+            const installBtn = document.getElementById('installPWA');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+            }
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // Fallback: show instructions
+                alert('Untuk menginstall aplikasi:\n\n1. Buka menu browser (3 titik di Chrome)\n2. Pilih "Add to Home Screen" atau "Install App"\n3. Konfirmasi instalasi');
+            }
+        }
+        
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'School Bell Management System',
+                    text: 'Aplikasi manajemen bel sekolah otomatis',
+                    url: window.location.origin
+                });
+            } else {
+                // Fallback: copy link
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = window.location.origin;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                alert('Link aplikasi disalin! Bagikan ke teman-teman Anda.');
+            }
+        }
+        
+        // Check if app is installed
+        window.addEventListener('appinstalled', function(evt) {
+            console.log('App was installed');
+            alert('Aplikasi berhasil diinstall!');
+        });
+    </script>
     
     <!-- Page specific JS -->
     {% block scripts %}{% endblock %}

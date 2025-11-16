@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share to School Bell</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .share-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .share-icon {
+            font-size: 4rem;
+            color: #0d6efd;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .file-preview {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .file-icon {
+            font-size: 2rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .btn-share {
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-share:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(13, 110, 253, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="share-container">
+        <div class="share-icon">
+            <i class="bi bi-bell-fill"></i>
+        </div>
+        
+        <h2 class="text-center mb-4">Share to School Bell</h2>
+        
+        <div class="file-preview" id="filePreview">
+            <div class="file-icon">
+                <i class="bi bi-file-earmark-music"></i>
+            </div>
+            <div id="fileName">No file selected</div>
+            <small class="text-muted" id="fileSize">0 KB</small>
+        </div>
+        
+        <form id="shareForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="displayName" class="form-label">Nama Audio</label>
+                <input type="text" class="form-control" id="displayName" required 
+                       placeholder="Contoh: Bel Masuk">
+            </div>
+            
+            <div class="mb-3">
+                <label for="audioFile" class="form-label">File Audio</label>
+                <input type="file" class="form-control" id="audioFile" 
+                       accept=".mp3,.wav,.ogg" required>
+                <div class="form-text">Format: MP3, WAV, OGG (Max: 50MB)</div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-share">
+                    <i class="bi bi-upload"></i> Upload ke School Bell
+                </button>
+                <a href="/pwa" class="btn btn-outline-secondary">
+                    <i class="bi bi-house"></i> Buka School Bell
+                </a>
+            </div>
+        </form>
+        
+        <div id="uploadProgress" style="display: none;">
+            <div class="progress mt-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" style="width: 100%"></div>
+            </div>
+            <p class="text-center mt-2 mb-0">Mengupload...</p>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Handle file sharing from other apps
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fileInput = document.getElementById('audioFile');
+            const displayNameInput = document.getElementById('displayName');
+            
+            // Check if file is shared via URL parameters
+            if (urlParams.has('file')) {
+                // Handle shared file (implementation depends on platform)
+                console.log('File shared:', urlParams.get('file'));
+            }
+            
+            // File input change handler
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    updateFilePreview(file);
+                    if (!displayNameInput.value) {
+                        displayNameInput.value = file.name.replace(/\.[^/.]+$/, "");
+                    }
+                }
+            });
+            
+            // Form submit handler
+            document.getElementById('shareForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                uploadFile();
+            });
+        });
+        
+        function updateFilePreview(file) {
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        async function uploadFile() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('audioFile');
+            const displayNameInput = document.getElementById('displayName');
+            const progressDiv = document.getElementById('uploadProgress');
+            
+            if (!fileInput.files[0]) {
+                alert('Pilih file audio terlebih dahulu');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            formData.append('display_name', displayNameInput.value);
+            
+            // Show progress
+            progressDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/audio/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('File audio berhasil diupload!');
+                    // Redirect to PWA
+                    window.location.href = '/pwa';
+                } else {
+                    alert('Gagal upload: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Gagal upload file. Coba lagi.');
+            } finally {
+                progressDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

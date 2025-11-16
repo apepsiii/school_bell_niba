@@ -1,0 +1,487 @@
+/* PWA Specific Styles with Shadcn/UI Orange Theme */
+
+/* Mobile-first responsive design */
+.pwa-container {
+    max-width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, var(--orange-500) 0%, var(--orange-700) 100%);
+}
+
+/* Safe area support for notched devices */
+@supports (padding: max(0px)) {
+    .pwa-container {
+        padding-left: max(env(safe-area-inset-left), 15px);
+        padding-right: max(env(safe-area-inset-right), 15px);
+        padding-top: max(env(safe-area-inset-top), 15px);
+        padding-bottom: max(env(safe-area-inset-bottom), 15px);
+    }
+}
+
+/* Touch-friendly buttons with Shadcn/UI Orange Theme */
+.pwa-button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    touch-action: manipulation;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.pwa-button:active {
+    transform: scale(0.95);
+}
+
+.pwa-button:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Cards with glassmorphism effect and Shadcn/UI Orange Theme */
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-lg);
+    color: var(--foreground);
+}
+
+/* Status indicators with Shadcn/UI Orange Theme */
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.online { background: var(--success); }
+.status-dot.offline { background: var(--danger); }
+.status-dot.playing {
+    background: var(--warning);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Schedule items with Shadcn/UI Orange Theme */
+.schedule-item {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--radius);
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.15s ease-in-out;
+    border-left: 4px solid transparent;
+    box-shadow: var(--shadow);
+}
+
+.schedule-item.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-left-color: var(--success);
+}
+
+.schedule-item.next {
+    background: rgba(245, 158, 11, 0.1);
+    border-left-color: var(--warning);
+}
+
+.schedule-item.past {
+    opacity: 0.6;
+}
+
+.schedule-time {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 60px;
+}
+
+.schedule-name {
+    flex: 1;
+    margin: 0 15px;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+/* Play button with Shadcn/UI Orange Theme */
+.play-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    border: none;
+    color: var(--primary-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.15s ease-in-out;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+}
+
+.play-btn:active {
+    transform: scale(0.9);
+}
+
+.play-btn.playing {
+    background: linear-gradient(135deg, var(--danger), #dc2626);
+    animation: pulse 1s infinite;
+}
+
+/* Volume slider with Shadcn/UI Orange Theme */
+.volume-slider {
+    width: 100%;
+    height: 8px;
+    border-radius: calc(var(--radius) - 2px);
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    border: none;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+/* Quick actions grid with Shadcn/UI Orange Theme */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.quick-action {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 15px;
+    text-align: center;
+    transition: all 0.15s ease-in-out;
+    font-weight: 500;
+    cursor: pointer;
+    touch-action: manipulation;
+    color: var(--foreground);
+    box-shadow: var(--shadow);
+}
+
+.quick-action:active {
+    transform: scale(0.95);
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.quick-action i {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary);
+}
+
+/* Install prompt with Shadcn/UI Orange Theme */
+.install-prompt {
+    background: linear-gradient(135deg, var(--success), #059669);
+    color: var(--success-foreground);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    display: none;
+    animation: slideInDown 0.5s ease-out;
+    box-shadow: var(--shadow-lg);
+}
+
+.install-prompt.show {
+    display: block;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Offline indicator with Shadcn/UI Orange Theme */
+.offline-banner {
+    background: var(--danger);
+    color: var(--danger-foreground);
+    padding: 8px 15px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-size: 0.9rem;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: none;
+    box-shadow: var(--shadow-md);
+}
+
+.offline-banner.show {
+    display: block;
+    animation: slideInDown 0.3s ease-out;
+}
+
+/* Loading states with Shadcn/UI Orange Theme */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--muted);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast notifications with Shadcn/UI Orange Theme */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--card);
+    color: var(--card-foreground);
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    animation: toastIn 0.3s ease-out;
+    pointer-events: auto;
+    max-width: 300px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+}
+
+.toast.success {
+    background: var(--success);
+    color: var(--success-foreground);
+    border-color: var(--success);
+}
+.toast.error {
+    background: var(--danger);
+    color: var(--danger-foreground);
+    border-color: var(--danger);
+}
+.toast.warning {
+    background: var(--warning);
+    color: var(--warning-foreground);
+    border-color: var(--warning);
+}
+.toast.info {
+    background: var(--info);
+    color: var(--info-foreground);
+    border-color: var(--info);
+}
+
+@keyframes toastIn {
+    from {
+        transform: translateY(-100%) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Modal overlays with Shadcn/UI Orange Theme */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--card);
+    color: var(--card-foreground);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: modalIn 0.3s ease-out;
+    box-shadow: var(--shadow-xl);
+}
+
+@keyframes modalIn {
+    from {
+        transform: scale(0.8) translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .pwa-container {
+        padding: 10px;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .schedule-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .schedule-time {
+        min-width: auto;
+    }
+    
+    .play-btn {
+        align-self: flex-end;
+    }
+}
+
+@media (min-width: 768px) {
+    .pwa-container {
+        max-width: 768px;
+        margin: 0 auto;
+    }
+    
+    .quick-actions {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Dark mode support with Shadcn/UI Orange Theme */
+@media (prefers-color-scheme: dark) {
+    .pwa-container {
+        background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-950) 100%);
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: var(--foreground);
+    }
+    
+    .schedule-item {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--foreground);
+    }
+    
+    .quick-action {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--foreground);
+    }
+    
+    .modal-content {
+        background: var(--card);
+        color: var(--card-foreground);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .glass-card {
+        background: white;
+        border: 2px solid black;
+    }
+    
+    .schedule-item {
+        background: white;
+        border: 2px solid black;
+    }
+    
+    .play-btn {
+        border: 2px solid black;
+    }
+}
+
+/* Print styles */
+@media print {
+    .pwa-button,
+    .play-btn,
+    .quick-action,
+    .install-prompt,
+    .offline-banner {
+        display: none !important;
+    }
+    
+    .glass-card {
+        background: white !important;
+        backdrop-filter: none !important;
+        border: 1px solid black !important;
+    }
+}

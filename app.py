@@ -3,7 +3,7 @@ Main Application untuk School Bell Management System
 Flask web server yang menghubungkan frontend dan backend
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash, send_from_directory
 from auth import login_required, admin_required, verify_password, get_user_role
 from werkzeug.utils import secure_filename
 import os
@@ -107,11 +107,14 @@ def add_schedule():
     """API untuk menambah jadwal baru"""
     data = request.json
     
+    if not data:
+        return jsonify({'success': False, 'error': 'No data provided'}), 400
+    
     schedule_id = database.add_schedule(
-        name=data['name'],
-        day_of_week=data['day_of_week'],
-        time=data['time'],
-        audio_file=data['audio_file']
+        name=data.get('name', ''),
+        day_of_week=data.get('day_of_week', ''),
+        time=data.get('time', ''),
+        audio_file=data.get('audio_file', '')
     )
     
     # Reload scheduler agar jadwal baru langsung aktif
@@ -125,12 +128,15 @@ def update_schedule(schedule_id):
     """API untuk update jadwal"""
     data = request.json
     
+    if not data:
+        return jsonify({'success': False, 'error': 'No data provided'}), 400
+    
     database.update_schedule(
         schedule_id=schedule_id,
-        name=data['name'],
-        day_of_week=data['day_of_week'],
-        time=data['time'],
-        audio_file=data['audio_file']
+        name=data.get('name', ''),
+        day_of_week=data.get('day_of_week', ''),
+        time=data.get('time', ''),
+        audio_file=data.get('audio_file', '')
     )
     
     # Reload scheduler
@@ -173,11 +179,11 @@ def upload_audio():
     
     file = request.files['file']
     
-    if file.filename == '':
+    if not file or file.filename == '':
         return jsonify({'success': False, 'error': 'No selected file'}), 400
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename or '')
         
         # Tambahkan timestamp untuk mencegah duplikasi nama
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -223,6 +229,10 @@ def delete_audio(audio_id):
 def play_audio():
     """API untuk play audio manual (pengumuman)"""
     data = request.json
+    
+    if not data:
+        return jsonify({'success': False, 'error': 'No data provided'}), 400
+    
     audio_file = data.get('audio_file')
     
     if not audio_file:
@@ -303,16 +313,19 @@ def update_settings():
     """API untuk update settings"""
     data = request.json
     
+    if not data:
+        return jsonify({'success': False, 'error': 'No data provided'}), 400
+    
     if 'volume' in data:
-        volume = max(0, min(100, int(data['volume'])))
+        volume = max(0, min(100, int(data.get('volume', 80))))
         database.update_setting('volume', str(volume))
         audio_player.set_volume(volume)
     
     if 'holiday_mode' in data:
-        database.update_setting('holiday_mode', '1' if data['holiday_mode'] else '0')
+        database.update_setting('holiday_mode', '1' if data.get('holiday_mode') else '0')
     
     if 'auto_start' in data:
-        database.update_setting('auto_start', '1' if data['auto_start'] else '0')
+        database.update_setting('auto_start', '1' if data.get('auto_start') else '0')
     
     return jsonify({'success': True})
 
@@ -324,6 +337,98 @@ def get_logs():
     logs = database.get_recent_logs(limit)
     return jsonify([dict(log) for log in logs])
 
+
+# ========== MAIN - JALANKAN APLIKASI ==========
+
+# ========== PWA ROUTES ==========
+
+@app.route('/pwa')
+def pwa_page():
+    """PWA mobile-friendly interface"""
+    return render_template('pwa.html')
+
+@app.route('/share')
+def share_handler():
+    """Handle file sharing from other apps"""
+    return render_template('share.html')
+
+@app.route('/api/sync', methods=['POST'])
+@login_required
+def sync_data():
+    """Sync data for PWA"""
+    data = request.json
+    
+    if not data:
+        return jsonify({'success': False, 'error': 'No data provided'}), 400
+    
+    if 'schedules' in data:
+        # Sync schedules from PWA
+        for schedule in data['schedules']:
+            if 'id' in schedule and schedule['id']:
+                # Update existing
+                database.update_schedule(
+                    schedule['id'],
+                    schedule.get('name', ''),
+                    schedule.get('day_of_week', ''),
+                    schedule.get('time', ''),
+                    schedule.get('audio_file', '')
+                )
+            else:
+                # Add new
+                database.add_schedule(
+                    schedule.get('name', ''),
+                    schedule.get('day_of_week', ''),
+                    schedule.get('time', ''),
+                    schedule.get('audio_file', '')
+                )
+    
+    if 'logs' in data:
+        # Sync logs from PWA
+        for log in data['logs']:
+            database.add_play_log(
+                log.get('schedule_id'),
+                log.get('audio_file', ''),
+                log.get('status', ''),
+                log.get('notes', '')
+            )
+    
+    return jsonify({'success': True})
+
+@app.route('/api/audio-files')
+def get_audio_files_list():
+    """Get list of audio files for PWA caching"""
+    try:
+        audio_files = database.get_all_audio_files()
+        return jsonify([dict(a) for a in audio_files])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/push-subscription', methods=['POST'])
+@login_required
+def save_push_subscription():
+    """Save push notification subscription"""
+    try:
+        subscription = request.json
+        # Save to database or file
+        # For now, just return success
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ========== SERVE STATIC FILES FOR PWA ==========
+
+@app.route('/static/manifest.json')
+def serve_manifest():
+    """Serve PWA manifest"""
+    return send_from_directory('static', 'manifest.json', mimetype='application/manifest+json')
+
+@app.route('/static/js/service-worker.js')
+def serve_service_worker():
+    """Serve service worker with correct headers"""
+    response = send_from_directory('static/js', 'service-worker.js')
+    response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
 
 # ========== MAIN - JALANKAN APLIKASI ==========
 
@@ -346,8 +451,9 @@ if __name__ == '__main__':
     
     print("\n" + "="*60)
     print("✅ Server ready!")
-    print("🌐 Open browser: http://localhost:5000")
-    print("📱 Or from other device: http://[YOUR-IP]:5000")
+    print("🌐 Web Interface: http://localhost:5000")
+    print("📱 PWA Interface: http://localhost:5000/pwa")
+    print("🔗 Or from other device: http://[YOUR-IP]:5000")
     print("="*60 + "\n")
     
     # Run Flask app
