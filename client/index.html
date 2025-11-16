@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SMK NIBA School Bell System - Client Player">
+    <meta name="theme-color" content="#0d6efd">
+    
+    <title>Bel Sekolah - SMK NIBA</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header-card h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        .header-card .subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator.online {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        }
+        
+        .status-indicator.playing {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.holiday {
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .status-icon {
+            font-size: 3rem;
+        }
+        
+        .clock-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .clock-time {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .clock-date {
+            font-size: 1.2rem;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .next-bell-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .next-bell-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .countdown-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .schedule-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .schedule-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .schedule-item.past {
+            background: #f8f9fa;
+            opacity: 0.6;
+        }
+        
+        .schedule-item.upcoming {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .schedule-item.active {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-left: 4px solid var(--warning-color);
+            animation: glow 2s infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+        }
+        
+        .schedule-time {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            min-width: 80px;
+        }
+        
+        .schedule-name {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0 15px;
+        }
+        
+        .schedule-icon {
+            font-size: 1.5rem;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .connection-status.connected {
+            background: var(--success-color);
+        }
+        
+        .connection-status.disconnected {
+            background: var(--danger-color);
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        @media (max-width: 768px) {
+            .header-card h1 {
+                font-size: 1.5rem;
+            }
+            
+            .clock-time {
+                font-size: 2.5rem;
+            }
+            
+            .countdown-display {
+                font-size: 2rem;
+            }
+            
+            .schedule-time {
+                font-size: 1.2rem;
+            }
+            
+            .schedule-name {
+                font-size: 1rem;
+            }
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .loading-content .spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status disconnected">
+        <div class="spinner"></div>
+        <span>Menghubungkan...</span>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner-large"></div>
+            <h3>Memuat Data...</h3>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-card">
+            <h1><i class="bi bi-bell-fill text-primary"></i> Bel Sekolah</h1>
+            <div class="subtitle">SMK NIBA - Sistem Informasi Bel Otomatis</div>
+        </div>
+        
+        <!-- Clock Display -->
+        <div class="clock-display">
+            <p class="clock-time" id="clockTime">--:--:--</p>
+            <p class="clock-date" id="clockDate">Loading...</p>
+        </div>
+        
+        <!-- Status Card -->
+        <div class="status-card">
+            <div id="statusIndicator" class="status-indicator online">
+                <div class="status-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0">Sistem Aktif</h4>
+                    <small>Menunggu jadwal berikutnya</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Next Bell Card -->
+        <div id="nextBellCard" class="next-bell-card" style="display: none;">
+            <h3><i class="bi bi-alarm"></i> Bel Berikutnya</h3>
+            <h4 id="nextBellName">-</h4>
+            <div class="countdown-display" id="countdownDisplay">00:00:00</div>
+            <p class="text-center mb-0">Pukul <strong id="nextBellTime">--:--</strong></p>
+        </div>
+        
+        <!-- Today's Schedule -->
+        <div class="status-card">
+            <h3 class="mb-3"><i class="bi bi-calendar-check"></i> Jadwal Hari Ini</h3>
+            <div id="scheduleList" class="schedule-list">
+                <div class="empty-state">
+                    <i class="bi bi-calendar-x"></i>
+                    <p>Memuat jadwal...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center text-white mt-4 mb-3">
+            <small>© 2024 SMK NIBA - Sistem Bel Otomatis v2.0</small>
+        </div>
+    </div>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script src="player.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered:', reg))
+                .catch(err => console.error('Service Worker registration failed:', err));
+        }
+    </script>
+</body>
+</html>
